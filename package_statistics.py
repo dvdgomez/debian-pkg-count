@@ -8,19 +8,12 @@ from collections import Counter
 # Since only one mirror for now, url is constant
 URL = "http://ftp.uk.debian.org/debian/dists/stable/main/"
 
-def check_architecture(arch: str) -> bool:
-    """Make sure the architecture is a valid option.
-
-    Args:
-    arch -- Architecture input
-    """
-    return True if arch in options else False
-
 def download_contents_index(url: str, arch: str) -> list:
     """Download contents index.
 
     Args:
     url -- URL of Debian Mirror
+    arch -- Input architecture selected
     """
     # Try and download contents index, exit if download fails
     try:
@@ -92,8 +85,9 @@ if __name__ == "__main__":
         sys.exit("No architecture selected, exiting!")
     # Download the respective contents index for the architecture
     content = download_contents_index(URL, architecture)
-    # Remove file after download
+    # Check if file exists before removing
     if os.path.isfile("contents_index.gz"):
+        # Remove file after download
         os.remove("contents_index.gz")
     # Parse the file output and count files per package
     pkg_count = count_pkgs(content)
