@@ -8,6 +8,7 @@ from collections import Counter
 # Since only one mirror for now, url is constant
 URL = "http://ftp.uk.debian.org/debian/dists/stable/main/"
 
+
 def download_contents_index(url: str, arch: str) -> list:
     """Download contents index.
 
@@ -17,8 +18,11 @@ def download_contents_index(url: str, arch: str) -> list:
     """
     # Try and download contents index, exit if download fails
     try:
+        # List to store packages
         output = []
-        urllib.request.urlretrieve(f"{url}Contents-{arch}.gz", "contents_index.gz")
+        urllib.request.urlretrieve(
+                f"{url}Contents-{arch}.gz", "contents_index.gz"
+        )
         # Open downloaded .gz file and read
         with gzip.open("contents_index.gz", "rb") as fp:
             # Store package column of each line
@@ -36,9 +40,12 @@ def download_contents_index(url: str, arch: str) -> list:
                     # Only 1 package for file case
                     output.append(line[0].split("/")[-1])
         return output
-    except:
-        sys.exit("Unable to download contents index!")
-        
+    except Exception as e:
+        sys.exit(
+                f"Unable to download contents index! Got error {e}"
+        )
+
+
 def count_pkgs(pkgs: list) -> list:
     """Count how many times a package was associated with a file in list
 
@@ -51,19 +58,37 @@ def count_pkgs(pkgs: list) -> list:
 
 if __name__ == "__main__":
     # Argument Parse
-    parser = argparse.ArgumentParser(description = "Package Statistics Tool")
+    parser = argparse.ArgumentParser(description="Package Statistics Tool")
     # Only allow one architecture to be passed in
     arch_arg = parser.add_mutually_exclusive_group()
     # Ensures only valid architecture is selected/input
-    arch_arg.add_argument("--amd64", help = "amd64 architecture", action = "store_true")
-    arch_arg.add_argument("--arm64", help = "arm64 architecture", action = "store_true")
-    arch_arg.add_argument("--armel", help = "armel architecture", action = "store_true")
-    arch_arg.add_argument("--armhf", help = "armhf architecture", action = "store_true")
-    arch_arg.add_argument("--i386", help = "i386 architecture", action = "store_true")
-    arch_arg.add_argument("--mips64el", help = "mips64el architecture", action = "store_true")
-    arch_arg.add_argument("--mipsel", help = "mipsel architecture", action = "store_true")
-    arch_arg.add_argument("--ppc64el", help = "ppc64el architecture", action = "store_true")
-    arch_arg.add_argument("--s390x", help = "s390x architecture", action = "store_true")
+    arch_arg.add_argument(
+            "--amd64", help="amd64 architecture", action="store_true"
+    )
+    arch_arg.add_argument(
+            "--arm64", help="arm64 architecture", action="store_true"
+    )
+    arch_arg.add_argument(
+            "--armel", help="armel architecture", action="store_true"
+    )
+    arch_arg.add_argument(
+            "--armhf", help="armhf architecture", action="store_true"
+    )
+    arch_arg.add_argument(
+            "--i386", help="i386 architecture", action="store_true"
+    )
+    arch_arg.add_argument(
+            "--mips64el", help="mips64el architecture", action="store_true"
+    )
+    arch_arg.add_argument(
+            "--mipsel", help="mipsel architecture", action="store_true"
+    )
+    arch_arg.add_argument(
+            "--ppc64el", help="ppc64el architecture", action="store_true"
+    )
+    arch_arg.add_argument(
+            "--s390x", help="s390x architecture", action="store_true"
+    )
     args = parser.parse_args()
     if args.amd64:
         architecture = "amd64"
