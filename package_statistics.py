@@ -1,5 +1,7 @@
+import os
 import sys
 import gzip
+import argparse
 import urllib.request
 from collections import Counter
 
@@ -31,7 +33,6 @@ def download_contents_index(url: str, arch: str) -> list:
                 # Convert from bytes to string and skip filename column
                 line = line.decode("utf-8").split()[1:]
                 # Check if multiple packages per file
-                import pdb
                 if "," in line[0]:
                     # Split comma separated packages line
                     line = line[0].split(",")
@@ -56,15 +57,44 @@ def count_pkgs(pkgs: list) -> list:
 
 
 if __name__ == "__main__":
-    # Make sure valid number of arguments input
-    if len(sys.argv) != 2:
-        sys.exit("Usage: package_statistics.py <ARCH>")
-    # Architecture Input Arg
-    architecture = sys.argv[1]
-    # TODO: Check if architecture is valid otherwise exit
+    # Argument Parse
+    parser = argparse.ArgumentParser(description = "Package Statistics Tool")
+    # Only allow one architecture to be passed in
+    arch_arg = parser.add_mutually_exclusive_group()
+    # Ensures only valid architecture is selected/input
+    arch_arg.add_argument("--amd64", help = "amd64 architecture", action = "store_true")
+    arch_arg.add_argument("--arm64", help = "arm64 architecture", action = "store_true")
+    arch_arg.add_argument("--armel", help = "armel architecture", action = "store_true")
+    arch_arg.add_argument("--armhf", help = "armhf architecture", action = "store_true")
+    arch_arg.add_argument("--i386", help = "i386 architecture", action = "store_true")
+    arch_arg.add_argument("--mips64el", help = "mips64el architecture", action = "store_true")
+    arch_arg.add_argument("--mipsel", help = "mipsel architecture", action = "store_true")
+    arch_arg.add_argument("--ppc64el", help = "ppc64el architecture", action = "store_true")
+    arch_arg.add_argument("--s390x", help = "s390x architecture", action = "store_true")
+    args = parser.parse_args()
+    if args.amd64:
+        architecture = "amd64"
+    elif args.arm64:
+        architecture = "arm64"
+    elif args.armel:
+        architecture = "armel"
+    elif args.armhf:
+        architecture = "armhf"
+    elif args.i386:
+        architecture = "i386"
+    elif args.mips64el:
+        architecture = "mips64el"
+    elif args.mipsel:
+        architecture = "ppc64el"
+    elif args.s390x:
+        architecture = "s390x"
+    else:
+        sys.exit("No architecture selected, exiting!")
     # Download the respective contents index for the architecture
     content = download_contents_index(URL, architecture)
-    # TODO: Remove file after download
+    # Remove file after download
+    if os.path.isfile("contents_index.gz"):
+        os.remove("contents_index.gz")
     # Parse the file output and count files per package
     pkg_count = count_pkgs(content)
     # Output top ten packages with most files associated with them
